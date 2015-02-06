@@ -127,11 +127,16 @@ func compressAssets() {
 
 	jsFiles, cssFiles := getCompiledAssets(regexp.MustCompile(`(min\.\w+$)|\/min\/`))
 
-	compress(jsFiles, ".js$:.js")
-	compress(cssFiles, ".css$:.css")
+	compress(jsFiles, ".js$:.js", "js")
+	compress(cssFiles, ".css$:.css", "css")
 }
 
-func compress(files []string, option string) {
+func compress(files []string, option string, kind string) {
+	if len(files) == 0 {
+		fmt.Printf("No %s files were found, skipping compression.\n", kind)
+		return
+	}
+
 	_, err := exec.LookPath("java")
 	if err != nil {
 		fmt.Println("You don't have Java installed.")
@@ -148,6 +153,8 @@ func compress(files []string, option string) {
 		fmt.Println("YUI Compressor error:", out)
 		panic(err)
 	}
+
+	fmt.Printf("%v %s files compressed.\n", len(files), kind)
 }
 
 func getCompiledAssets(filter *regexp.Regexp) (jsFiles []string, cssFiles []string) {
